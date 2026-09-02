@@ -21,8 +21,11 @@ class Story
     #[ORM\Column(type: 'text')]
     private string $prompt;
 
-    #[ORM\Column(length: 20)]
-    private string $status = 'pending';   // день 8: переедет в enum — оставляю тебе заметку
+//    #[ORM\Column(length: 20)]
+//    private string $status = 'pending';   // день 8: переедет в enum — оставляю тебе заметку
+
+    #[ORM\Column(enumType: StoryStatus::class)]
+    private StoryStatus $status = StoryStatus::Pending;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -37,6 +40,21 @@ class Story
     public function getId(): ?int { return $this->id; }
     public function getTitle(): string { return $this->title; }
     public function getPrompt(): string { return $this->prompt; }
-    public function getStatus(): string { return $this->status; }
+   // public function getStatus(): string { return $this->status; }
+    public function getStatus(): StoryStatus
+    {
+        return $this->status;
+    }
+
+    public function transitionTo(StoryStatus $next): void
+    {
+        $this->status->canTransitionTo($next)?:
+            throw new \DomainException(
+                sprintf('Illegal transition %s -> %s', $this->status->value, $next->value)
+            );
+
+
+        $this->status = $next;
+    }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 }

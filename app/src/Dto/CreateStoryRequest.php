@@ -6,16 +6,16 @@ namespace App\Dto;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class CreateStoryRequest
+final readonly class CreateStoryRequest
 {
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Length(max: 200)]
-        public readonly string $title,
+        public string $title,
 
         #[Assert\NotBlank]
         #[Assert\Length(min: 10)]
-        public readonly string $prompt,
+        public string $prompt,
     ) {
     }
 }
