@@ -102,12 +102,14 @@ returns `422` with a `violations` list (`title` is required, max 200 chars; `pro
   A cancelled or already-finished story is skipped and logged. A story already in `generating` (the worker was
   killed mid-run and the message was redelivered) continues without a second transition, so redelivery never
   hits the guard.
-- **Retries and a failure transport.** The `async` transport retries 3 times with exponential backoff (1s, 2s, 4s,
-  Messenger's default jitter applied). A transient error ("LLM flaked") is absorbed by a retry; a permanent one
-  (a prompt containing `poison`) exhausts the retries and the message lands in the Doctrine-backed `failed`
-  transport, where it can be inspected and replayed with `messenger:failed:*`. Flipping the story itself to
-  `failed` from a `WorkerMessageFailedEvent` listener is the next step; today the status stays at `generating`
-  until that listener lands.
+- **Retries and a failure transport.** The `async` transport retries 3 times
+  with exponential backoff (1s, 2s, 4s, Messenger's default jitter applied).
+  A transient error ("LLM flaked") is absorbed by a retry; a permanent one
+  (a prompt containing `poison`) exhausts the retries and the message lands
+  in the Doctrine-backed `failed` transport, where it can be inspected and
+  replayed with `messenger:failed:*`. A `WorkerMessageFailedEvent` listener
+  reacts to the final rejection and transitions the story itself to `failed`,
+  so the API status always reflects reality.
 - **Unified JSON errors.** A `kernel.exception` subscriber turns every exception into `{"error": ...}`:
   `DomainException` becomes `409`, HTTP exceptions keep their code and headers, validation failures become
   `422` with a `violations` array, and anything else is `500` with the real message only in `dev`.
