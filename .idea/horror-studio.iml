@@ -97,6 +97,11 @@
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/css-selector" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/dom-crawler" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/theseer/tokenizer" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/psr/clock" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/amqp-messenger" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/clock" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/doctrine-messenger" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/messenger" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -9,10 +9,13 @@ use App\Entity\Story;
 use App\Entity\StoryStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
+use App\Message\GenerateStoryMessage;
 
 final class StoryService
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em
+        ,private readonly MessageBusInterface $bus)
     {
     }
 
@@ -21,6 +24,10 @@ final class StoryService
         $story = new Story($request->title, $request->prompt);
         $this->em->persist($story);
         $this->em->flush();
+        if($story->getId() !== null) {
+            $this->bus->dispatch(new GenerateStoryMessage($story->getId()));
+        }
+
 
         return $story;
     }
@@ -36,7 +43,6 @@ final class StoryService
         $story = $this->getById($id);
         $story->transitionTo(StoryStatus::Cancelled);
         $this->em->flush();
-
         return $story;
     }
 }

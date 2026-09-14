@@ -30,6 +30,8 @@ class Story
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $content = null;
     public function __construct(string $title, string $prompt)
     {
         $this->title = $title;
@@ -57,4 +59,14 @@ class Story
         $this->status = $next;
     }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function markCompleted(string $content): void
+    {
+        $this->transitionTo(StoryStatus::Completed);
+        $this->content = $content;
+    }
 }

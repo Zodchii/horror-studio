@@ -13,19 +13,18 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\StoryStatus;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Service\StoryService;
 
 final class StoryController
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private readonly StoryService $stories)
     {
     }
 
     #[Route('/api/stories', methods: ['POST'])]
     public function create(#[MapRequestPayload] CreateStoryRequest $request): JsonResponse
     {
-        $story = new Story($request->title, $request->prompt);
-        $this->em->persist($story);
-        $this->em->flush();
+        $story = $this->stories->create($request);
 
         return new JsonResponse(
             ['id' => $story->getId(), 'status' => $story->getStatus()->value],
@@ -37,37 +36,21 @@ final class StoryController
     #[Route('/api/stories/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function get(int $id): JsonResponse
     {
-//        $story = $this->em->find(Story::class, $id);
-        $story = $this->em->find(Story::class, $id)
-            ?? throw new NotFoundHttpException('story not found');
-//        if ($story === null) {
-//            return new JsonResponse(['error' => 'story not found'], Response::HTTP_NOT_FOUND);
-//        }
+        $story = $this->stories->getById($id);
 
         return new JsonResponse([
             'id'         => $story->getId(),
             'title'      => $story->getTitle(),
             'status'     => $story->getStatus()->value,
+            'content'    => $story->getContent(),
             'created_at' => $story->getCreatedAt()->format(DATE_ATOM),
         ]);
     }
+
     #[Route('/api/stories/{id}/cancel', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function cancel(int $id): JsonResponse
     {
-        $story = $this->em->find(Story::class, $id)
-                ?? throw new NotFoundHttpException('story not found');
-
-//        if ($story === null) {
-//            return new JsonResponse(['error' => 'story not found'], Response::HTTP_NOT_FOUND);
-//        }
-
-//        try {
-            $story->transitionTo(StoryStatus::Cancelled);
-//        } catch (\DomainException $e) {
-//            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_CONFLICT);
-//        }
-
-        $this->em->flush();
+        $story = $this->stories->cancel($id);
 
         return new JsonResponse(['id' => $story->getId(), 'status' => $story->getStatus()->value]);
     }

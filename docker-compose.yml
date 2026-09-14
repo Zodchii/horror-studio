@@ -6,6 +6,7 @@ services:
       - ./app:/app
     environment:
       DATABASE_URL: "postgresql://app:secret@postgres:5432/horror?serverVersion=16&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "amqp://guest:guest@rabbitmq:5672/%2f/stories"
     depends_on: [postgres, redis, rabbitmq]
 
   nginx:
