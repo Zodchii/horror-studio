@@ -108,7 +108,8 @@ returns `422` with a `violations` list (`title` is required, max 200 chars; `pro
   (a prompt containing `poison`) exhausts the retries and the message lands
   in the Doctrine-backed `failed` transport, where it can be inspected and
   replayed with `messenger:failed:*`. A `WorkerMessageFailedEvent` listener
-  reacts to the final rejection and transitions the story itself to `failed`,
+  ignores deliveries that will still be retried (`willRetry()`) and, on the
+  final rejection, transitions the story itself from `generating` to `failed`,
   so the API status always reflects reality.
 - **Unified JSON errors.** A `kernel.exception` subscriber turns every exception into `{"error": ...}`:
   `DomainException` becomes `409`, HTTP exceptions keep their code and headers, validation failures become
